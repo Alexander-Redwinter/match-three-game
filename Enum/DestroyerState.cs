@@ -1,12 +1,12 @@
 ﻿namespace GameFoRest
 {
-    enum destroyerState
+    enum DestroyerState
     {
         Up,
         Down,
         Left,
         Right,
-        Blow,
+        Destroying,
         Triggered
     }
 }

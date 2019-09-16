@@ -41,30 +41,31 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Parameters.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="enumAnimation.cs" />
-    <Compile Include="enumBonusType.cs" />
-    <Compile Include="Block.cs" />
+    <Compile Include="Enum\Animation.cs" />
+    <Compile Include="Enum\BonusType.cs" />
+    <Compile Include="Cell.cs" />
     <Compile Include="Destroyer.cs" />
-    <Compile Include="enumCellState.cs" />
-    <Compile Include="enumGame.cs" />
-    <Compile Include="Shape.cs" />
+    <Compile Include="Enum\DestroyerState.cs" />
+    <Compile Include="Enum\GameState.cs" />
+    <Compile Include="Enum\Shape.cs" />
     <Compile Include="ShapesAtlas.cs" />
     <Compile Include="obj\x86\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
     <Compile Include="obj\x86\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
     <Compile Include="obj\x86\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
     <Compile Include="Button.cs" />
     <Compile Include="absUIObject.cs" />
-    <Compile Include="enumState.cs" />
+    <Compile Include="Enum\MouseState.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="Label.cs" />
     <Compile Include="absScreen.cs" />
     <Compile Include="TextureAtlas.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EndScreen.cs" />
-    <Compile Include="GameScreen.cs" />
-    <Compile Include="StartScreen.cs" />
+    <Compile Include="Screens\EndScreen.cs" />
+    <Compile Include="Screens\GameScreen.cs" />
+    <Compile Include="Screens\StartScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

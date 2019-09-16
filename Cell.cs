@@ -3,8 +3,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameFoRest
 {
-    class Block
+    class Cell
     {
+        public Animation Animation { get; private set; }
+        public bool IsSelected { get; private set; }
+        public int Row { get; private set; }
+        public int Column { get; private set; }
+        public Shape Shape { get; set; }
+        public BonusType Bonus { get; set; }
+        public MouseState State { get; set; }
 
         private Field field;
         private Vector2 location;
@@ -15,18 +22,10 @@ namespace GameFoRest
         private Texture2D hoverTexture;
         private int speed;
 
-        public enumAnimation Animation { get; private set; }
-        public bool IsSelected { get; private set; }
-        public int Row { get; private set; }
-        public int Column { get; private set; }
-
-        public Objects Shape { get; set; }
-        public Bonus Bonus { get; set; }
-        public enumState State { get; set; }
         private readonly Color backColor = new Color(255, 255, 255);
-        public Block(Field super, Objects shape, ShapesAtlas texture, Texture2D hoverTexture, Texture2D backTexture, int row, int column)
+        public Cell(Field field, Shape shape, ShapesAtlas texture, Texture2D hoverTexture, Texture2D backTexture, int row, int column)
         {
-            this.field = super;
+            this.field = field;
             Shape = shape;
             shapeTexture = texture;
             this.backTexture = backTexture;
@@ -35,35 +34,35 @@ namespace GameFoRest
             Column = column;
 
             size = new Point(50, 50);
-            location = new Vector2((Column * size.X) + super.Rectangle.X, (Row * size.Y) + super.Rectangle.Y);
+            location = new Vector2((Column * size.X) + field.Rectangle.X, (Row * size.Y) + field.Rectangle.Y);
 
-            Animation = enumAnimation.Idle;
-            State = enumState.Idle;
-            Bonus = Bonus.None;
+            Animation = Animation.Idle;
+            State = MouseState.Idle;
+            Bonus = BonusType.None;
             IsSelected = false;
         }
 
         internal bool Update(GameTime gameTime)
         {
-            if (Animation == enumAnimation.Idle)
+            if (Animation == Animation.Idle)
             {
                 return false;
             }
             switch (Animation)
             {
-                case enumAnimation.Destroy:
-                    Shape = Objects.Empty;
-                    Animation = enumAnimation.Idle;
+                case Animation.Destroy:
+                    Shape = Shape.Empty;
+                    Animation = Animation.Idle;
                     break;
-                case enumAnimation.Drop:
+                case Animation.Drop:
                     location.Y += (float)(speed * gameTime.ElapsedGameTime.TotalSeconds);
                     if (location.Y >= destination.Y)
                     {
                         location.Y = destination.Y;
-                        Animation = enumAnimation.Idle;
+                        Animation = Animation.Idle;
                     }
                     break;
-                case enumAnimation.Swap:
+                case Animation.Swap:
                     AnimateSwap(gameTime);
                     break;
             }
@@ -76,7 +75,7 @@ namespace GameFoRest
             if (location.Y >= destination.Y)
             {
                 location.Y = destination.Y;
-                Animation = enumAnimation.Idle;
+                Animation = Animation.Idle;
             }
         }
 
@@ -87,7 +86,7 @@ namespace GameFoRest
             {
                 if (location.Y == destination.Y)
                 {
-                    Animation = enumAnimation.Idle;
+                    Animation = Animation.Idle;
                 }
                 else
                 {
@@ -97,7 +96,7 @@ namespace GameFoRest
                         if (location.Y >= destination.Y)
                         {
                             location.Y = destination.Y;
-                            Animation = enumAnimation.Idle;
+                            Animation = Animation.Idle;
                         }
                     }
                     else
@@ -106,7 +105,7 @@ namespace GameFoRest
                         if (location.Y <= destination.Y)
                         {
                             location.Y = destination.Y;
-                            Animation = enumAnimation.Idle;
+                            Animation = Animation.Idle;
                         }
                     }
                 }
@@ -120,7 +119,7 @@ namespace GameFoRest
                     if (location.X >= destination.X)
                     {
                         location.X = destination.X;
-                        Animation = enumAnimation.Idle;
+                        Animation = Animation.Idle;
                     }
                 }
                 else
@@ -129,7 +128,7 @@ namespace GameFoRest
                     if (location.X <= destination.X)
                     {
                         location.X = destination.X;
-                        Animation = enumAnimation.Idle;
+                        Animation = Animation.Idle;
                     }
                 }
             }
@@ -141,12 +140,12 @@ namespace GameFoRest
             Rectangle rectangle = new Rectangle((int)location.X, (int)location.Y, 60, 60);
             switch (State)
             {
-                case enumState.Idle:
+                case MouseState.Idle:
                     break;
-                case enumState.Hover:
+                case MouseState.Hover:
                     spriteBatch.Draw(hoverTexture, rectangle, backColor);
                     break;
-                case enumState.Push:
+                case MouseState.Push:
                     spriteBatch.Draw(backTexture, rectangle, Color.White);
                     break;
             }
@@ -159,37 +158,37 @@ namespace GameFoRest
 
         internal void Destroy()
         {
-            if (Shape != Objects.Empty && Animation != enumAnimation.Destroy)
+            if (Shape != Shape.Empty && Animation != Animation.Destroy)
             {
-                State = enumState.Idle;
-                Animation = enumAnimation.Destroy;
+                State = MouseState.Idle;
+                Animation = Animation.Destroy;
                 field.BonusDestroyers(Row, Column, Bonus);
             }
         }
 
-        internal void Spawn(Objects shape)
+        internal void Spawn(Shape shape)
         {
-            State = enumState.Idle;
+            State = MouseState.Idle;
             Shape = shape;
-            Animation = enumAnimation.Idle;
+            Animation = Animation.Idle;
         }
 
-        internal void Fall(Block cell)
+        internal void Fall(Cell cell)
         {
-            cell.State = enumState.Idle;
+            cell.State = MouseState.Idle;
             cell.Shape = Shape;
-            Shape = Objects.Empty;
+            Shape = Shape.Empty;
             cell.Bonus = Bonus;
-            Bonus = Bonus.None;
+            Bonus = BonusType.None;
 
             cell.destination = cell.location;
             cell.location = location;
-            cell.speed = cell.Row * 500;
+            cell.speed = Parameters.CellSpeed;
 
-            cell.Animation = enumAnimation.Drop;
+            cell.Animation = Animation.Drop;
         }
 
-        public bool IsAdjacent(Block cell)
+        public bool IsAdjacent(Cell cell)
         {
             if ((Column == cell.Column && (Row == cell.Row - 1 || Row == cell.Row + 1)) ||
                 ((Row == cell.Row && (Column == cell.Column - 1 || Column == cell.Column + 1))))
@@ -204,26 +203,26 @@ namespace GameFoRest
             IsSelected = !IsSelected;
         }
 
-        internal void Swap(Block cell)
+        internal void Swap(Cell cell)
         {
 
             Vector2 tempLocation = location;
             location = cell.location;
             cell.location = tempLocation;
-            speed = 500;
-            cell.speed = 500;
-            Objects tempShape = Shape;
+            speed = Parameters.CellSpeed;
+            cell.speed = Parameters.CellSpeed;
+            Shape tempShape = Shape;
             Shape = cell.Shape;
             cell.Shape = tempShape;
-            Animation = enumAnimation.Swap;
-            cell.Animation = enumAnimation.Swap;
-            cell.Animation = enumAnimation.Swap;
-            Bonus tempBonus = Bonus;
+            Animation = Animation.Swap;
+            cell.Animation = Animation.Swap;
+            cell.Animation = Animation.Swap;
+            BonusType tempBonus = Bonus;
             Bonus = cell.Bonus;
             cell.Bonus = tempBonus;
             cell.destination = location;
-            destination = cell.location; State = enumState.Idle;
-            cell.State = enumState.Idle;
+            destination = cell.location; State = MouseState.Idle;
+            cell.State = MouseState.Idle;
         }
 
     }

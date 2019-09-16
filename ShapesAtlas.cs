@@ -7,7 +7,7 @@ namespace GameFoRest
     {
         public ShapesAtlas(Texture2D texture) : base(texture, 4, 5) { }
 
-        public void Draw(SpriteBatch spriteBatch, Objects shape, Bonus bonus, Vector2 location, float opacity)
+        public void Draw(SpriteBatch spriteBatch, Shape shape, BonusType bonus, Vector2 location, float opacity)
         {
             int column = (int)shape - 1;
             int row = (int)bonus;

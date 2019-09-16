@@ -1,6 +1,6 @@
 ﻿namespace GameFoRest
 {
-    enum enumState
+    enum MouseState
     {
         Idle,
         Hover,

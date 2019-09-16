@@ -1,6 +1,6 @@
 ﻿namespace GameFoRest
 {
-    enum enumAnimation
+    enum Animation
     {
         Idle,
         Drop,

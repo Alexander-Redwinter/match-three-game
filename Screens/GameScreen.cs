@@ -6,21 +6,22 @@ namespace GameFoRest
     class GameScreen : absScreen
     {
 
-        private int TIME_TO_PLAY = 60;
-        private Label labelTimer, labelScore;
+        private Label labelTimer, labelScore, labelTurns;
         private Field field;
         private double currentTime;
         private int totalScore;
-        private enumGame state;
+        private int turnsTaken;
+        private GameState state;
 
         public GameScreen(Game1 game) : base(game)
         {
-            state = enumGame.Spawn;
-            currentTime = TIME_TO_PLAY;
+            state = GameState.MatchAfterSpawn;
+            currentTime = Parameters.PlayTime;
         }
 
         internal override void LoadContent()
         {
+
             MakeGui();
             foreach (var element in elements)
             {
@@ -28,11 +29,17 @@ namespace GameFoRest
             }
             labelTimer = (Label)GetElement(1);
             labelScore = (Label)GetElement(2);
+            labelTurns = (Label)GetElement(3);
             field = (Field)GetElement(0);
         }
 
         private void MakeGui()
         {
+            Label turnsLabel = new Label("turns: ", (SpriteFont)game.gameContent[0]);
+            Point turnsPosition = new Point(110, 410);
+            turnsLabel.SetRelativePosition(turnsPosition);
+            AddElement(3, turnsLabel);
+
             Label scoreLabel = new Label("score: ", (SpriteFont)game.gameContent[0]);
             Point scorePosition = new Point(10, 410);
             scoreLabel.SetRelativePosition(scorePosition);
@@ -61,6 +68,7 @@ namespace GameFoRest
         internal override void Update(GameTime gameTime)
         {
             labelScore.SetText("score: " + totalScore.ToString());
+            labelTurns.SetText("turns: " + turnsTaken.ToString());
             labelTimer.SetText("time left: " + ((int)currentTime).ToString());
             loop();
 
@@ -85,75 +93,55 @@ namespace GameFoRest
         private void loop()
         {
             if (!field.busy)
-
             {
-
                 int score;
-
                 switch (state)
-
                 {
-
-
-                    case enumGame.Spawn:
-
-                        state = field.Spawn() ? enumGame.MatchAfterSpawn : enumGame.Input;
-
+                    case GameState.Spawn:
+                        state = field.Spawn() ? GameState.MatchAfterSpawn : GameState.Input; 
                         break;
-
-                    case enumGame.MatchAfterSpawn:
-
+                    case GameState.MatchAfterSpawn:
                         score = field.Match();
-
                         if (score > 0)
-
                         {
-
                             totalScore += score;
-
-                            state = enumGame.Falling;
-
+                            state = GameState.Falling;
                         }
-
                         else
-
                         {
-
-                            state = enumGame.Input;
-
+                            state = GameState.Input;
                         }
-
                         break;
 
-                    case enumGame.Falling:
+                    case GameState.Falling:
 
                         field.FallBlocks();
 
-                        state = enumGame.Spawn;
+                        state = GameState.Spawn;
 
                         break;
 
-                    case enumGame.Input:
+                    case GameState.Input:
 
                         if (field.Input())
 
                         {
 
-                            state = enumGame.Swap;
+                            state = GameState.Swap;
 
                         }
 
                         break;
 
-                    case enumGame.Swap:
+                    case GameState.Swap:
 
                         field.Swap(true);
 
-                        state = enumGame.Matched;
+                        state = GameState.Matched;
 
                         break;
 
-                    case enumGame.Matched:
+                    case GameState.Matched:
 
                         score = field.Match();
 
@@ -163,7 +151,7 @@ namespace GameFoRest
 
                             totalScore += score;
 
-                            state = enumGame.Falling;
+                            state = GameState.Falling;
 
                         }
 
@@ -171,18 +159,18 @@ namespace GameFoRest
 
                         {
 
-                            state = enumGame.NotMatched;
+                            state = GameState.NotMatched;
 
                         }
-
+                        turnsTaken++;
                         break;
 
-                    case enumGame.NotMatched:
+                    case GameState.NotMatched:
 
                         field.Swap(false);
 
-                        state = enumGame.Input;
-
+                        state = GameState.Input;
+                        turnsTaken++;
                         break;
 
                 }

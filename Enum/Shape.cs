@@ -1,6 +1,6 @@
 ﻿namespace GameFoRest
 {
-    enum Objects
+    public enum Shape
     {
         Empty,
         A,

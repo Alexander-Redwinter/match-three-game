@@ -11,10 +11,11 @@ namespace GameFoRest
 {
     class Field : absUIObject, IDisposable
     {
-        public Block[,] cells;
-        public List<Destroyer> destroyers;
-        private Block currentCell;
-        private Block selectedCell;
+        public Cell[,] Cells;
+        public List<Destroyer> Destroyers;
+
+        private Cell currentCell;
+        private Cell selectedCell;
         private Texture2D backTexture;
         private Texture2D destroyerTexture;
         private Texture2D hoverTexture;
@@ -28,12 +29,12 @@ namespace GameFoRest
         public Field(absScreen screen)
         {
             this.screen = screen;
-            cells = new Block[8, 8];
+            Cells = new Cell[8, 8];
             CellSize = new Point(50, 50);
             SetSize(new Point(400, 400));
-            destroyers = new List<Destroyer>();
+            Destroyers = new List<Destroyer>();
             random = new Random();
-            shapes = Enum.GetValues(typeof(Objects));
+            shapes = Enum.GetValues(typeof(Shape));
             busy = false;
         }
 
@@ -46,12 +47,26 @@ namespace GameFoRest
             hoverTexture = content.Load<Texture2D>("hover");
             backTexture = content.Load<Texture2D>("select");
 
-            for (int i = 0; i < cells.GetLength(0); i++)
+            if (Parameters.UseMap)
             {
-                for (int j = 0; j < cells.GetLength(1); j++)
+                for (int i = 0; i < Parameters.Map.GetLength(0); i++)
                 {
-                    Block cell = new Block(this, Objects.Empty, shapesAtlas,hoverTexture, backTexture, i, j);
-                    cells[i, j] = cell;
+                    for (int j = 0; j < Parameters.Map.GetLength(1); j++)
+                    {
+                        Cell cell = new Cell(this, Parameters.Map[i,j], shapesAtlas, hoverTexture, backTexture, i, j);
+                        Cells[i, j] = cell;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Cells.GetLength(0); i++)
+                {
+                    for (int j = 0; j < Cells.GetLength(1); j++)
+                    {
+                        Cell cell = new Cell(this, Shape.Empty, shapesAtlas, hoverTexture, backTexture, i, j);
+                        Cells[i, j] = cell;
+                    }
                 }
             }
         }
@@ -64,9 +79,9 @@ namespace GameFoRest
         internal override void Update(GameTime gameTime)
         {
             busy = false;
-            foreach (var cell in cells)
+            foreach (var cell in Cells)
             {
-                if (cell.Animation != enumAnimation.Idle)
+                if (cell.Animation != Animation.Idle)
                 {
                     busy = true;
                 }
@@ -74,8 +89,8 @@ namespace GameFoRest
             }
 
 
-            List<Point> toDestroy = new List<Point>(destroyers.Count);
-            foreach (var destroyer in destroyers)
+            List<Point> toDestroy = new List<Point>(Destroyers.Count);
+            foreach (var destroyer in Destroyers)
             {
                 busy = true;
                 if (destroyer.Update(gameTime))
@@ -83,12 +98,12 @@ namespace GameFoRest
                     toDestroy.Add(new Point(destroyer.Position.X, destroyer.Position.Y));
                 }
             }
-            var detonated = destroyers.FindAll(d => d.Remove && d.Direction == destroyerState.Blow);
+            var detonated = Destroyers.FindAll(d => d.Remove && d.State == DestroyerState.Destroying);
             addDestroyers(detonated);
-            destroyers.RemoveAll(d => d.Remove);
-            int score = toDestroy.Count(c => cells[c.X, c.Y].Animation == enumAnimation.Idle) / 10;
+            Destroyers.RemoveAll(d => d.Remove);
+            int score = toDestroy.Count(c => Cells[c.X, c.Y].Animation == Animation.Idle) / 10;
             ((GameScreen)screen).AddScore(score);
-            toDestroy.ForEach(point => cells[point.X, point.Y].Destroy());
+            toDestroy.ForEach(point => Cells[point.X, point.Y].Destroy());
         }
 
         private void addDestroyers(List<Destroyer> detonated)
@@ -103,8 +118,8 @@ namespace GameFoRest
                         {
                             continue;
                         }
-                        destroyers.Add(new Destroyer(this, new Vector2(j * CellSize.X + Rectangle.X, i * CellSize.Y + Rectangle.Y),
-                            destroyerTexture, destroyerState.Triggered));
+                        Destroyers.Add(new Destroyer(this, new Vector2(j * CellSize.X + Rectangle.X, i * CellSize.Y + Rectangle.Y),
+                            destroyerTexture, DestroyerState.Triggered));
                     }
                 }
             }
@@ -112,11 +127,11 @@ namespace GameFoRest
 
         internal override void Draw(SpriteBatch spriteBatch)
         {
-            foreach (var cell in cells)
+            foreach (var cell in Cells)
             {
                 cell.Draw(spriteBatch);
             }
-            foreach (var destroyer in destroyers)
+            foreach (var destroyer in Destroyers)
             {
                 destroyer.Draw(spriteBatch);
             }
@@ -124,95 +139,95 @@ namespace GameFoRest
 
         internal bool Spawn()
         {
-            bool b = false;
+            bool spawning = false;
 
-            for (int i = 0; i < cells.GetLength(0); i++)
+            for (int i = 0; i < Cells.GetLength(0); i++)
             {
-                for (int j = 0; j < cells.GetLength(1); j++)
+                for (int j = 0; j < Cells.GetLength(1); j++)
                 {
-                    if (cells[i, j].Shape == Objects.Empty)
+                    if (Cells[i, j].Shape == Shape.Empty)
                     {
-                        b = true;
-                        Objects shape = (Objects)shapes.GetValue(random.Next(shapes.Length - 1) + 1);
-                        cells[i, j].Spawn(shape);
-                        cells[i, j].Bonus = Bonus.None;
+                        spawning = true;
+                        Shape shape = (Shape)shapes.GetValue(random.Next(shapes.Length - 1) + 1);
+                        Cells[i, j].Spawn(shape);
+                        Cells[i, j].Bonus = BonusType.None;
                     }
                 }
             }
-            return b;
+            return spawning;
         }
 
         internal int Match()
         {
             int matchScore = 0;
-            List<Block> toDestroy = new List<Block>(64);
-            List<Block> newBonuses = new List<Block>();
+            List<Cell> toDestroy = new List<Cell>(64);
+            List<Cell> newBonuses = new List<Cell>();
 
-            for (int i = 0; i < cells.GetLength(0); i++)
+            for (int i = 0; i < Cells.GetLength(0); i++)
             {
-                List<Block> temp = new List<Block>(8) { cells[i, 0] };
-                for (int j = 1; j < cells.GetLength(1); j++)
+                List<Cell> temp = new List<Cell>(8) { Cells[i, 0] };
+                for (int j = 1; j < Cells.GetLength(1); j++)
                 {
                     bool stop = false;
-                    if (cells[i, j].Shape == temp[0].Shape)
+                    if (Cells[i, j].Shape == temp[0].Shape)
                     {
-                        temp.Add(cells[i, j]);
+                        temp.Add(Cells[i, j]);
                     }
                     else
                     {
                         stop = true;
                     }
-                    if (stop || j == cells.GetLength(1) - 1)
+                    if (stop || j == Cells.GetLength(1) - 1)
                     {
                         if (temp.Count >= 3)
                         {
                             if (selectedCell != null)
                             {
-                                newBonuses.Add(CreateBonus(temp, Bonus.LineHorizontal));
+                                newBonuses.Add(CreateBonus(temp, BonusType.LineHorizontal));
                             }
                             toDestroy.AddRange(temp);
                             matchScore += temp.Count;
                         }
                         temp.Clear();
-                        temp.Add(cells[i, j]);
+                        temp.Add(Cells[i, j]);
                     }
                 }
             }
-            for (int j = 0; j < cells.GetLength(1); j++)
+            for (int j = 0; j < Cells.GetLength(1); j++)
             {
-                List<Block> temp = new List<Block>(8) { cells[0, j] };
-                for (int i = 1; i < cells.GetLength(0); i++)
+                List<Cell> temp = new List<Cell>(8) { Cells[0, j] };
+                for (int i = 1; i < Cells.GetLength(0); i++)
                 {
                     bool stop = false;
-                    if (cells[i, j].Shape == temp[0].Shape)
+                    if (Cells[i, j].Shape == temp[0].Shape)
                     {
-                        temp.Add(cells[i, j]);
+                        temp.Add(Cells[i, j]);
                     }
                     else
                     {
                         stop = true;
                     }
-                    if (stop || i == cells.GetLength(0) - 1)
+                    if (stop || i == Cells.GetLength(0) - 1)
                     {
                         if (temp.Count >= 3)
                         {
                             if (selectedCell != null)
                             {
-                                newBonuses.Add(CreateBonus(temp, Bonus.LineVertical));
+                                newBonuses.Add(CreateBonus(temp, BonusType.LineVertical));
                             }
                             var intersect = toDestroy.Intersect(temp);
-                            List<Block> intersectList = intersect.ToList();
+                            List<Cell> intersectList = intersect.ToList();
                             foreach (var bonusCell in intersectList)
                             {
                                 temp.Remove(bonusCell);
                                 toDestroy.Remove(bonusCell);
-                                bonusCell.Bonus = Bonus.Bomb;
+                                bonusCell.Bonus = BonusType.Bomb;
                             }
                             toDestroy.AddRange(temp);
                             matchScore += temp.Count;
                         }
                         temp.Clear();
-                        temp.Add(cells[i, j]);
+                        temp.Add(Cells[i, j]);
                     }
                 }
             }
@@ -225,14 +240,14 @@ namespace GameFoRest
             return matchScore;
         }
 
-        private Block CreateBonus(List<Block> matchedCells, Bonus orientation)
+        private Cell CreateBonus(List<Cell> matchedCells, BonusType orientation)
         {
-            Block bonusCell = null;
+            Cell bonusCell = null;
             switch (matchedCells.Count)
             {
                 case 4:
                     bonusCell = matchedCells.Find(cell => (cell == selectedCell || cell == currentCell));
-                    if (bonusCell.Bonus != Bonus.None)
+                    if (bonusCell.Bonus != BonusType.None)
                     {
                         BonusDestroyers(bonusCell.Row, bonusCell.Column, bonusCell.Bonus);
                     }
@@ -240,54 +255,54 @@ namespace GameFoRest
                     break;
                 case 5:
                     bonusCell = matchedCells.Find(cell => (cell == selectedCell || cell == currentCell));
-                    if (bonusCell.Bonus != Bonus.None)
+                    if (bonusCell.Bonus != BonusType.None)
                     {
                         BonusDestroyers(bonusCell.Row, bonusCell.Column, bonusCell.Bonus);
                     }
-                    bonusCell.Bonus = Bonus.Bomb;
+                    bonusCell.Bonus = BonusType.Bomb;
                     break;
             }
             return bonusCell;
         }
 
-        internal void BonusDestroyers(int row, int column, Bonus bonus)
+        internal void BonusDestroyers(int row, int column, BonusType bonus)
         {
             switch (bonus)
             {
-                case Bonus.LineVertical:
-                    destroyers.Add(new Destroyer(this, new Vector2(column * CellSize.X + Rectangle.X, (row - 0.5f) * CellSize.Y + Rectangle.Y),
-                        destroyerTexture, destroyerState.Up));
-                    destroyers.Add(new Destroyer(this, new Vector2(column * CellSize.X + Rectangle.X, (row + 0.5f) * CellSize.Y + Rectangle.Y),
-                        destroyerTexture, destroyerState.Down));
+                case BonusType.LineVertical:
+                    Destroyers.Add(new Destroyer(this, new Vector2(column * CellSize.X + Rectangle.X, (row - 0.5f) * CellSize.Y + Rectangle.Y),
+                        destroyerTexture, DestroyerState.Up));
+                    Destroyers.Add(new Destroyer(this, new Vector2(column * CellSize.X + Rectangle.X, (row + 0.5f) * CellSize.Y + Rectangle.Y),
+                        destroyerTexture, DestroyerState.Down));
                     break;
-                case Bonus.LineHorizontal:
-                    destroyers.Add(new Destroyer(this, new Vector2((column - 0.5f) * CellSize.X + Rectangle.X, row * CellSize.Y + Rectangle.Y),
-                        destroyerTexture, destroyerState.Left));
-                    destroyers.Add(new Destroyer(this, new Vector2((column + 0.5f) * CellSize.X + Rectangle.X, row * CellSize.Y + Rectangle.Y),
-                        destroyerTexture, destroyerState.Right));
+                case BonusType.LineHorizontal:
+                    Destroyers.Add(new Destroyer(this, new Vector2((column - 0.5f) * CellSize.X + Rectangle.X, row * CellSize.Y + Rectangle.Y),
+                        destroyerTexture, DestroyerState.Left));
+                    Destroyers.Add(new Destroyer(this, new Vector2((column + 0.5f) * CellSize.X + Rectangle.X, row * CellSize.Y + Rectangle.Y),
+                        destroyerTexture, DestroyerState.Right));
                     break;
-                case Bonus.Bomb:
-                    destroyers.Add(new Destroyer(this, new Vector2(column * CellSize.X + Rectangle.X, row * CellSize.Y + Rectangle.Y),
-                        destroyerTexture, destroyerState.Blow));
+                case BonusType.Bomb:
+                    Destroyers.Add(new Destroyer(this, new Vector2(column * CellSize.X + Rectangle.X, row * CellSize.Y + Rectangle.Y),
+                        destroyerTexture, DestroyerState.Destroying));
                     break;
             }
         }
 
         internal void FallBlocks()
         {
-            for (int j = 0; j < cells.GetLength(1); j++)
+            for (int j = 0; j < Cells.GetLength(1); j++)
             {
-                for (int i = cells.GetLength(0) - 1; i > 0; i--)
+                for (int i = Cells.GetLength(0) - 1; i > 0; i--)
                 {
-                    if (cells[i, j].Shape == Objects.Empty)
+                    if (Cells[i, j].Shape == Shape.Empty)
                     {
                         int k = i - 1;
-                        while (k >= 0 && cells[k, j].Shape == Objects.Empty)
+                        while (k >= 0 && Cells[k, j].Shape == Shape.Empty)
                         {
                             k--;
                         }
                         if (k < 0) break;
-                        cells[k, j].Fall(cells[i, j]);
+                        Cells[k, j].Fall(Cells[i, j]);
                     }
                 }
             }
@@ -295,22 +310,22 @@ namespace GameFoRest
 
         internal bool Input()
         {
-            MouseState mouseState = Mouse.GetState();
+            Microsoft.Xna.Framework.Input.MouseState mouseState = Mouse.GetState();
 
             if (Rectangle.Contains(mouseState.Position))
             {
                 int i = (mouseState.Position.Y - Rectangle.Y) / CellSize.Y;
                 int j = (mouseState.Position.X - Rectangle.X) / CellSize.X;
 
-                if (currentCell != null && cells[i, j] != currentCell)
+                if (currentCell != null && Cells[i, j] != currentCell)
                 {
-                    currentCell.State = enumState.Idle;
+                    currentCell.State = MouseState.Idle;
                 }
-                currentCell = cells[i, j];
+                currentCell = Cells[i, j];
 
-                if (mouseState.LeftButton == ButtonState.Released && currentCell.State == enumState.Push)
+                if (mouseState.LeftButton == ButtonState.Released && currentCell.State == MouseState.Push)
                 {
-                    currentCell.State = enumState.Hover;
+                    currentCell.State = MouseState.Hover;
                     if (currentCell.IsSelected)
                     {
                         currentCell.Switch();
@@ -329,18 +344,18 @@ namespace GameFoRest
                 }
                 else if (mouseState.LeftButton == ButtonState.Pressed)
                 {
-                    currentCell.State = enumState.Push;
+                    currentCell.State = MouseState.Push;
                 }
                 else
                 {
-                    currentCell.State = enumState.Hover;
+                    currentCell.State = MouseState.Hover;
                 }
             }
             else
             {
                 if (currentCell != null)
                 {
-                    currentCell.State = enumState.Idle;
+                    currentCell.State = MouseState.Idle;
                 }
             }
             return false;
@@ -350,8 +365,8 @@ namespace GameFoRest
         {
             if (swap)
             {
-            selectedCell.Swap(currentCell);
-            selectedCell.Switch();
+                selectedCell.Swap(currentCell);
+                selectedCell.Switch();
             }
             else
             {

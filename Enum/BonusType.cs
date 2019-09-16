@@ -1,6 +1,6 @@
 ﻿namespace GameFoRest
 {
-    enum Bonus
+    enum BonusType
     {
         None,
         LineVertical,

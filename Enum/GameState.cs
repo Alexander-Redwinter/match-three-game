@@ -1,6 +1,6 @@
 ﻿namespace GameFoRest
 {
-    enum enumGame
+    enum GameState
     {
         Spawn,
         Match,

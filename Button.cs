@@ -11,7 +11,7 @@ namespace GameFoRest
         private Color backColor;
         private Color backColorHover;
         private Color backColorPressed;
-        private enumState state;
+        private MouseState state;
         private Texture2D backTexture;
         private Label label;
 
@@ -30,7 +30,7 @@ namespace GameFoRest
                 this.label.Parent = this;
                 this.label.SetRelativePosition(textPosition);
             }
-            state = enumState.Idle;
+            state = MouseState.Idle;
         }
 
         private Point CalculateTextPosition()
@@ -53,22 +53,22 @@ namespace GameFoRest
 
         internal override void Update(GameTime gameTime)
         {
-            MouseState mouseState = Mouse.GetState();
+            Microsoft.Xna.Framework.Input.MouseState mouseState = Mouse.GetState();
             if (Rectangle.Contains(mouseState.Position))
             {
-                if (state == enumState.Push && mouseState.LeftButton == ButtonState.Released)
+                if (state == MouseState.Push && mouseState.LeftButton == ButtonState.Released)
                 {
-                    state = enumState.Hover;
+                    state = MouseState.Hover;
                     OnClick?.Invoke(this, null);
                 }
                 else
                 {
-                    state = mouseState.LeftButton == ButtonState.Pressed ? enumState.Push : enumState.Hover;
+                    state = mouseState.LeftButton == ButtonState.Pressed ? MouseState.Push : MouseState.Hover;
                 }
             }
             else
             {
-                state = enumState.Idle;
+                state = MouseState.Idle;
             }
         }
 
@@ -77,13 +77,13 @@ namespace GameFoRest
             Color drawButtonColor = backColor;
             switch (state)
             {
-                case enumState.Idle:
+                case MouseState.Idle:
                     drawButtonColor = backColor;
                     break;
-                case enumState.Hover:
+                case MouseState.Hover:
                     drawButtonColor = backColorHover;
                     break;
-                case enumState.Push:
+                case MouseState.Push:
                     drawButtonColor = backColorPressed;
                     break;
             }

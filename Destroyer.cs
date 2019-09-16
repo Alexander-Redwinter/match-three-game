@@ -5,68 +5,69 @@ namespace GameFoRest
 {
     class Destroyer
     {
-        private Field super;
+        private readonly Texture2D texture;
+        private Field field;
         private Vector2 location;
-        private Texture2D texture;
         private double timer;
-        public destroyerState Direction { get; private set; }
+
+        public DestroyerState State { get; private set; }
         public Point Position { get; private set; }
         public bool Remove { get; private set; }
 
-        public Destroyer(Field parent, Vector2 location, Texture2D texture, destroyerState direction)
+        public Destroyer(Field parent, Vector2 startLocation, Texture2D texture, DestroyerState destroyerState)
         {
-            this.super = parent;
-            this.location = location;
+            this.field = parent;
+            this.location = startLocation;
             this.texture = texture;
-            Direction = direction;
+            State = destroyerState;
             Remove = false;
             Position = new Point(-1, -1);
         }
 
         internal bool Update(GameTime gameTime)
         {
-            bool b = checkBordersAndSetPosition();
+            bool b = CheckBordersAndSetPosition();
             float delta = (float)(200 * gameTime.ElapsedGameTime.TotalSeconds);
-            switch (Direction)
+            switch (State)
             {
-                case destroyerState.Up:
+                case DestroyerState.Up:
                     location.Y -= delta;
-                    if (location.Y <= super.Rectangle.Top - 50)
+                    if (location.Y <= field.Rectangle.Top - 50)
                     {
                         Remove = true;
                     }
                     break;
-                case destroyerState.Down:
+                case DestroyerState.Down:
                     location.Y += delta;
-                    if (location.Y >= super.Rectangle.Bottom)
+                    if (location.Y >= field.Rectangle.Bottom)
                     {
                         Remove = true;
                     }
                     break;
-                case destroyerState.Left:
+                case DestroyerState.Left:
                     location.X -= delta;
-                    if (location.X <= super.Rectangle.Left - super.CellSize.X)
+                    if (location.X <= field.Rectangle.Left - field.CellSize.X)
                     {
                         Remove = true;
                     }
                     break;
-                case destroyerState.Right:
+                case DestroyerState.Right:
                     location.X += delta;
-                    if (location.X >= super.Rectangle.Right)
+                    if (location.X >= field.Rectangle.Right)
                     {
                         Remove = true;
                     }
                     break;
-                case destroyerState.Blow:
+                case DestroyerState.Destroying:
                     timer += gameTime.ElapsedGameTime.TotalMilliseconds;
-                    if (timer >= 250)
+                    if (timer >= Parameters.BonusTriggerTime)
                     {
                         Remove = true;
                     }
                     break;
-                case destroyerState.Triggered:
+                case DestroyerState.Triggered:
                     timer += gameTime.ElapsedGameTime.TotalMilliseconds;
-                    if (timer >= 250)
+                    if (timer >= Parameters.BonusTriggerTime)
                     {
                         Remove = true;
                     }
@@ -75,11 +76,11 @@ namespace GameFoRest
             return b;
         }
 
-        private bool checkBordersAndSetPosition()
+        private bool CheckBordersAndSetPosition()
         {
             bool r = false;
-            int i = (int)((location.Y - super.Rectangle.Y) / super.CellSize.Y);
-            int j = (int)((location.X - super.Rectangle.X) / super.CellSize.X);
+            int i = (int)((location.Y - field.Rectangle.Y) / field.CellSize.Y);
+            int j = (int)((location.X - field.Rectangle.X) / field.CellSize.X);
 
             if (Position.X != j || Position.Y != i)
             {

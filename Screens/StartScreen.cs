@@ -22,6 +22,7 @@ namespace GameFoRest
         private void MakeGui()
         {
             Label buttonLabel = new Label("play", (SpriteFont)game.gameContent[0]);
+            
             Point buttonSize = new Point(200, 50);
             Point buttonPosition = new Point(200 - buttonSize.X / 2, 200 - buttonSize.Y / 2);
             Button playButton = new Button(new Rectangle(buttonPosition, buttonSize),
