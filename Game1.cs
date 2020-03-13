@@ -5,14 +5,14 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 
-namespace GameFoRest
+namespace MatchThree
 {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
     public class Game1 : Game
     {
-        private absScreen currentScreen;
+        private Screen currentScreen;
         private ContentManager contentManager;
 
         public GraphicsDeviceManager Graphics { get; private set; }
@@ -81,20 +81,20 @@ namespace GameFoRest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DimGray);
 
             currentScreen.Draw();
 
             base.Draw(gameTime);
         }
 
-        internal absScreen ChangeScreen(Type screenType)
+        internal Screen ChangeScreen(Type screenType)
         {
-            absScreen screen = null;
-            if (screenType.BaseType == typeof(absScreen))
+            Screen screen = null;
+            if (screenType.BaseType == typeof(Screen))
             {
                 currentScreen.UnloadContent();
-                screen = (absScreen)Activator.CreateInstance(screenType, this);
+                screen = (Screen)Activator.CreateInstance(screenType, this);
                 currentScreen = screen;
                 currentScreen.LoadContent();
             }

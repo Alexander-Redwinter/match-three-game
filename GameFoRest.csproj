@@ -9,8 +9,8 @@
     <ProjectGuid>{110260CF-3507-42C7-B4BF-017F7963FD0B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameFoRest</RootNamespace>
-    <AssemblyName>GameFoRest</AssemblyName>
+    <RootNamespace>MatchThree</RootNamespace>
+    <AssemblyName>MatchThree</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -55,11 +55,11 @@
     <Compile Include="obj\x86\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
     <Compile Include="obj\x86\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
     <Compile Include="Button.cs" />
-    <Compile Include="absUIObject.cs" />
+    <Compile Include="UI\UIObject.cs" />
     <Compile Include="Enum\MouseState.cs" />
-    <Compile Include="Field.cs" />
-    <Compile Include="Label.cs" />
-    <Compile Include="absScreen.cs" />
+    <Compile Include="UI\Field.cs" />
+    <Compile Include="UI\Label.cs" />
+    <Compile Include="Screens\Screen.cs" />
     <Compile Include="TextureAtlas.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".gitignore" />
     <Content Include="bin\Windows\x86\Debug\GameFoRest.exe" />
     <Content Include="bin\Windows\x86\Debug\GameFoRest.pdb" />
     <Content Include="bin\Windows\x86\Debug\MonoGame.Framework.dll" />

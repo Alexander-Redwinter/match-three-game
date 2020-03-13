@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GameFoRest
+namespace MatchThree
 {
 #if WINDOWS || LINUX
     /// <summary>

@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    class StartScreen : absScreen
+    class StartScreen : Screen
     {
 
 
@@ -21,7 +21,7 @@ namespace GameFoRest
 
         private void MakeGui()
         {
-            Label buttonLabel = new Label("play", (SpriteFont)game.gameContent[0]);
+            Label buttonLabel = new Label("Play", (SpriteFont)game.gameContent[0]);
             
             Point buttonSize = new Point(200, 50);
             Point buttonPosition = new Point(200 - buttonSize.X / 2, 200 - buttonSize.Y / 2);

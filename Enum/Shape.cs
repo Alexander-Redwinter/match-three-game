@@ -1,4 +1,4 @@
-﻿namespace GameFoRest
+﻿namespace MatchThree
 {
     public enum Shape
     {

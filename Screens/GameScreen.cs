@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    class GameScreen : absScreen
+    class GameScreen : Screen
     {
 
         private Label labelTimer, labelScore, labelTurns;
@@ -36,7 +36,7 @@ namespace GameFoRest
         private void MakeGui()
         {
             Label turnsLabel = new Label("turns: ", (SpriteFont)game.gameContent[0]);
-            Point turnsPosition = new Point(110, 410);
+            Point turnsPosition = new Point(120, 410);
             turnsLabel.SetRelativePosition(turnsPosition);
             AddElement(3, turnsLabel);
 
@@ -67,10 +67,14 @@ namespace GameFoRest
 
         internal override void Update(GameTime gameTime)
         {
+            if(turnsTaken == 0)
+            {
+                totalScore = 0;
+            }
             labelScore.SetText("score: " + totalScore.ToString());
             labelTurns.SetText("turns: " + turnsTaken.ToString());
             labelTimer.SetText("time left: " + ((int)currentTime).ToString());
-            loop();
+            Loop();
 
             foreach (var element in elements)
             {
@@ -80,23 +84,25 @@ namespace GameFoRest
             currentTime -= gameTime.ElapsedGameTime.TotalSeconds;
             if (currentTime <= 0)
             {
-                gameOver();
+                GameOver();
             }
         }
 
-        private void gameOver()
+        private void GameOver()
         {
             EndScreen endScreen = (EndScreen)game.ChangeScreen(typeof(EndScreen));
             endScreen.TotalScore = totalScore;
+            endScreen.TotalTurns = turnsTaken;
         }
 
-        private void loop()
+        private void Loop()
         {
             if (!field.busy)
             {
                 int score;
                 switch (state)
                 {
+
                     case GameState.Spawn:
                         state = field.Spawn() ? GameState.MatchAfterSpawn : GameState.Input; 
                         break;
@@ -126,9 +132,7 @@ namespace GameFoRest
                         if (field.Input())
 
                         {
-
                             state = GameState.Swap;
-
                         }
 
                         break;
@@ -142,37 +146,24 @@ namespace GameFoRest
                         break;
 
                     case GameState.Matched:
-
                         score = field.Match();
-
                         if (score > 0)
-
                         {
-
                             totalScore += score;
-
                             state = GameState.Falling;
-
                         }
-
                         else
-
                         {
-
                             state = GameState.NotMatched;
-
                         }
                         turnsTaken++;
                         break;
 
                     case GameState.NotMatched:
-
                         field.Swap(false);
-
                         state = GameState.Input;
                         turnsTaken++;
                         break;
-
                 }
 
             }

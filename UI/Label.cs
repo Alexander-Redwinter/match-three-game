@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    class Label : absUIObject
+    class Label : UIObject
     {
         public string Text { get; private set; }
         public SpriteFont TextFont { get; private set; }

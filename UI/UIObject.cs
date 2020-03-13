@@ -2,14 +2,14 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    abstract class absUIObject
+    abstract class UIObject
     {
-        protected absUIObject super;
-        protected absScreen screen;
+        protected UIObject super;
+        protected Screen screen;
 
-        public absUIObject Parent
+        public UIObject Parent
         {
             get { return super; }
             set

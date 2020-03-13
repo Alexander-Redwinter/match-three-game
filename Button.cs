@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    class Button : absUIObject, IDisposable
+    class Button : UIObject, IDisposable
     {
         private Color backColor;
         private Color backColorHover;

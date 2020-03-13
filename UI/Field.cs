@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    class Field : absUIObject, IDisposable
+    class Field : UIObject, IDisposable
     {
         public Cell[,] Cells;
         public List<Destroyer> Destroyers;
@@ -26,7 +26,7 @@ namespace GameFoRest
         public Point CellSize { get; private set; }
         public bool busy { get; private set; }
 
-        public Field(absScreen screen)
+        public Field(Screen screen)
         {
             this.screen = screen;
             Cells = new Cell[8, 8];
@@ -99,14 +99,14 @@ namespace GameFoRest
                 }
             }
             var detonated = Destroyers.FindAll(d => d.Remove && d.State == DestroyerState.Destroying);
-            addDestroyers(detonated);
+            AddDestroyers(detonated);
             Destroyers.RemoveAll(d => d.Remove);
-            int score = toDestroy.Count(c => Cells[c.X, c.Y].Animation == Animation.Idle) / 10;
+            int score = toDestroy.Count(c => Cells[c.X, c.Y].Animation == Animation.Idle);
             ((GameScreen)screen).AddScore(score);
             toDestroy.ForEach(point => Cells[point.X, point.Y].Destroy());
         }
 
-        private void addDestroyers(List<Destroyer> detonated)
+        private void AddDestroyers(List<Destroyer> detonated)
         {
             foreach (var item in detonated)
             {

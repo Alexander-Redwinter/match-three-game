@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    abstract class absScreen
+    abstract class Screen
     {
         protected Game1 game;
-        protected Dictionary<int, absUIObject> elements;
+        protected Dictionary<int, UIObject> elements;
 
-        protected absScreen(Game1 game)
+        protected Screen(Game1 game)
         {
             this.game = game;
-            elements = new Dictionary<int, absUIObject>();
+            elements = new Dictionary<int, UIObject>();
         }
 
         internal virtual void LoadContent() { }
@@ -19,12 +19,12 @@ namespace GameFoRest
         internal virtual void Update(GameTime gameTime) { }
         internal virtual void Draw() { }
 
-        public void AddElement(int id, absUIObject element)
+        public void AddElement(int id, UIObject element)
         {
             elements.Add(id, element);
         }
 
-        public absUIObject GetElement(int id)
+        public UIObject GetElement(int id)
         {
             return elements[id];
         }

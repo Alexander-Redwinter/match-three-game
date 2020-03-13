@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameFoRest
+namespace MatchThree
 {
     public static class Parameters
     {
@@ -16,12 +16,12 @@ namespace GameFoRest
         public static readonly Shape[,] Map = new Shape[8, 8]{
             {Shape.A ,Shape.B ,Shape.A ,Shape.B ,Shape.A ,Shape.B ,Shape.A ,Shape.B},
             {Shape.C ,Shape.D ,Shape.C ,Shape.D ,Shape.C ,Shape.E ,Shape.C ,Shape.D},
-            {Shape.A ,Shape.E ,Shape.A ,Shape.B ,Shape.A ,Shape.E ,Shape.A ,Shape.B},
+            {Shape.A ,Shape.B ,Shape.A ,Shape.B ,Shape.A ,Shape.E ,Shape.A ,Shape.B},
             {Shape.C ,Shape.D ,Shape.E ,Shape.D ,Shape.C ,Shape.D ,Shape.E ,Shape.D},
             {Shape.A ,Shape.B ,Shape.E ,Shape.B ,Shape.A ,Shape.E ,Shape.A ,Shape.B},
             {Shape.C ,Shape.E ,Shape.C ,Shape.D ,Shape.C ,Shape.E ,Shape.C ,Shape.D},
-            {Shape.A ,Shape.B ,Shape.E ,Shape.B ,Shape.A ,Shape.B ,Shape.A ,Shape.B},
-            {Shape.C ,Shape.D ,Shape.C ,Shape.D ,Shape.C ,Shape.D ,Shape.C ,Shape.D}
+            {Shape.A ,Shape.B ,Shape.E ,Shape.B ,Shape.E ,Shape.B ,Shape.E ,Shape.B},
+            {Shape.C ,Shape.E ,Shape.C ,Shape.E ,Shape.C ,Shape.D ,Shape.C ,Shape.D}
         };
     }
 }

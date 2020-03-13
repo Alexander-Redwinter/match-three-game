@@ -2,10 +2,12 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace GameFoRest
+namespace MatchThree
 {
-    class EndScreen : absScreen
+    class EndScreen : Screen
     {
+
+
 
         private int totalScore;
 
@@ -20,8 +22,26 @@ namespace GameFoRest
                 totalScore = value;
                 Label scoreLabel = ((Label)elements[1]);
                 scoreLabel.SetText("total score: " + totalScore.ToString());
-                scoreLabel.SetRelativePosition(new Point(10,
-                410));
+                Point scorePosition = new Point(200 - scoreLabel.Rectangle.Width / 2, 225);
+                scoreLabel.SetRelativePosition(scorePosition);
+            }
+        }
+
+        private int totalTurns;
+
+        public int TotalTurns
+        {
+            get
+            {
+                return totalTurns;
+            }
+            set
+            {
+                totalTurns = value;
+                Label turnsLabel = ((Label)elements[3]);
+                turnsLabel.SetText(String.Format("and it took just {0} turns!", totalTurns));
+                Point turnsPosition = new Point(200 - turnsLabel.Rectangle.Width / 2, 250);
+                turnsLabel.SetRelativePosition(turnsPosition);
             }
         }
 
@@ -41,19 +61,22 @@ namespace GameFoRest
 
             Label gameOverLabel = new Label("game over", (SpriteFont)game.gameContent[0]);
             Point labelPosition = new Point(150,
-                200);
+                150);
             gameOverLabel.SetRelativePosition(labelPosition);
             AddElement(0, gameOverLabel);
+
             Label scoreLabel = new Label("fetching...", (SpriteFont)game.gameContent[0]);
-            Point scorePosition = new Point(10,
-                410);
-            scoreLabel.SetRelativePosition(scorePosition);
+            scoreLabel.SetRelativePosition(new Point(0, 0));
             AddElement(1, scoreLabel);
+
+            Label turnsLabel = new Label("fetching...", (SpriteFont)game.gameContent[0]);
+            turnsLabel.SetRelativePosition(new Point(0, 0));
+            AddElement(3, turnsLabel);
+
             Label buttonLabel = new Label("ok", (SpriteFont)game.gameContent[0]);
-            Point buttonSize = new Point(200, 50);
-            Point buttonPosition = new Point(100,
-               250);
-            Button okButton = new Button(new Rectangle(buttonPosition, buttonSize),
+            Point buttonSize = new Point(200, 40);
+            Button okButton = new Button(new Rectangle(new Point(100,
+               350), buttonSize),
                 Color.AntiqueWhite, new Color(255, 255, 255), Color.Aqua, buttonLabel);
             okButton.OnClick += retry;
             AddElement(2, okButton);
